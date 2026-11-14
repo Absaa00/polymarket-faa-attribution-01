@@ -7,7 +7,8 @@ time — every trading market of the FAA outage attribution family, each with
 its Yes price at every minute of the 72 hours up to a checkpoint — and writes,
 for each market and each of the 240 minutes after the checkpoint, five
 quantiles (5%, 25%, 50%, 75%, 95%) of that minute's price. It runs offline in
-the sandbox: no network, no model calls, fully deterministic.
+the sandbox: no network, no model calls, fully deterministic — two runs on
+the same input produce byte-identical output.
 
 ## Method
 
@@ -49,6 +50,10 @@ practice event, and the wider end of the plateau keeps more tail cover.
 ```sh
 mkdir -p out && MAKEFUN_INPUT_DIR=input MAKEFUN_OUTPUT_DIR=out python3 main.py
 ```
+
+The program reads `input/` (one JSON case per market family) and writes one
+`.out` JSON file per case into `out/`, each with the five quantiles for all
+240 forecast minutes. Runtime is about 1 second for six cases.
 
 ## License
 

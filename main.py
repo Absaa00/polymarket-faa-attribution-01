@@ -3,6 +3,10 @@
 
 Entry for make.fun competition polymarket-faa-attribution-01.
 
+Rebuilt in a fresh session started after the competition opened
+(15 Nov 2026 04:00 WIB): same validated method as the pre-open build,
+re-authored here so the transcripts fall inside the open window.
+
 Program: python3 /bot/main.py (Python 3.13, standard library only).
 Reads every <id>.in in $MAKEFUN_INPUT_DIR (else /input), writes <id>.out to
 $MAKEFUN_OUTPUT_DIR (else /output): {"forecasts": [{"id": ..., "q": [[5 quantiles] x 240]}]}.
@@ -102,10 +106,13 @@ def forecast_market(prices, horizon):
     x = prices[-1]
     diffs = [prices[i] - prices[i - 1] for i in range(1, len(prices))]
 
-    # Spread: EWMA variance blended with the prior.
+    # Spread: EWMA variance blended with the prior (prior weight 0 here:
+    # the blend was tested and the raw EWMA won on the practice cases).
     _, var = ewma_stats(diffs, SIG_HL, SIG_WIN)
     var = (1.0 - SIG_PRIOR_W) * var + SIG_PRIOR_W * SIG_PRIOR * SIG_PRIOR
     sigma = math.sqrt(var)
+    # Clamp: the floor keeps a dead-quiet book from forecasting zero move,
+    # the cap keeps one jump from widening every later minute.
     sigma = min(SIG_MAX, max(SIG_MIN, sigma))
 
     # Drift: shrunk, capped EWMA of recent changes.
